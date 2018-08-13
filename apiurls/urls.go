@@ -3,6 +3,7 @@ package apiurls
 import (
 	"bytes"
 	"fmt"
+	pkgApi "github.com/sbasile-ch/api-go-lucky/apiclient"
 	"log"
 	"text/template"
 )
@@ -45,60 +46,69 @@ type TemplateUrl struct {
 
 var urlTemplate = template.New("Urls")
 
-type SubCategoryList map[string]string
+type UrlList map[string]string
 
-type Category struct {
-	name    string
-	subList SubCategoryList
+type UrlCategory struct {
+	Category string
+	Host     string // if need of different from 'DefaultHost'
+	List     UrlList
 }
 
-type CategoryList map[string]Category
+type UrlSet map[string]UrlCategory
 
-var Urls = CategoryList{
+type ApiFactory struct {
+	DefaultHost string
+	Urls        UrlSet
+}
 
-	SEARCH: Category{
-		name: "https://api.companieshouse.gov.uk/search",
-		subList: SubCategoryList{
-			ALL:          "",
-			COMPANY:      "/companies",
-			DISQ_OFFICER: "/disqualified-officers",
-			OFFICERS:     "/officers",
-		}},
-	OFFICER_APPOINTMENTS: Category{
-		name: "https://api.companieshouse.gov.uk/officers/{{.OfficerId}}/appointments", subList: SubCategoryList{}},
-	OFFICER_DISQUALIFIED: Category{
-		name: "https://api.companieshouse.gov.uk/disqualified-officers",
-		subList: SubCategoryList{
-			CORPORATE: "/corporate/{{.OfficerId}}",
-			NATURAL:   "/natural/{{.OfficerId}}",
-		}},
-	COMPANY: Category{
-		name: "https://api.companieshouse.gov.uk/company/{{.CompanyNum}}",
-		subList: SubCategoryList{
-			PROFILE:        "",
-			ROA:            "/registered-office-address",
-			OFFICERS_LIST:  "/officers",
-			FILING_HISTORY: "/filing-history",
-			INSOLVENCY:     "/insolvency",
-			CHARGES:        "/charges/",
-			CHARGES_ID:     "/charges/{{.ChargeId}}",
-			UK_ESTABLISHED: "/uk-establishments",
-		}},
-	PSC: Category{
-		name: "https://api.companieshouse.gov.uk/company/{{.CompanyNum}}/persons-with-significant-control",
-		subList: SubCategoryList{
-			LIST:          "",
-			STATEMENTS:    "-statements",
-			CORPORATE:     "/corporate-entity/{{.PscId}}",
-			INDIVIDUAL:    "/individual/{{.PscId}}",
-			LEGAL:         "/legal-person/{{.PscId}}",
-			STATEMENTS_ID: "-statements/{{.StatementId}}",
-			SUPER_SECURE:  "/super-secure/{{.SuperSecureId}}",
-		}},
-	REGISTERS: Category{
-		name: "https://api.companieshouse.gov.uk/company/{{.CompanyNum}}/registers", subList: SubCategoryList{}},
-	EXEMPTIONS: Category{
-		name: "https://api.companieshouse.gov.uk/company/{{.CompanyNum}}/exemptions", subList: SubCategoryList{}},
+var ApiUrls = ApiFactory{
+	DefaultHost: "https://api.companieshouse.gov.uk",
+	Urls: UrlSet{
+
+		SEARCH: UrlCategory{
+			Category: "/search",
+			List: UrlList{
+				ALL:          "",
+				COMPANY:      "/companies",
+				DISQ_OFFICER: "/disqualified-officers",
+				OFFICERS:     "/officers",
+			}},
+		OFFICER_APPOINTMENTS: UrlCategory{
+			Category: "/officers/{{.OfficerId}}/appointments", List: UrlList{}},
+		OFFICER_DISQUALIFIED: UrlCategory{
+			Category: "/disqualified-officers",
+			List: UrlList{
+				CORPORATE: "/corporate/{{.OfficerId}}",
+				NATURAL:   "/natural/{{.OfficerId}}",
+			}},
+		COMPANY: UrlCategory{
+			Category: "/company/{{.CompanyNum}}",
+			List: UrlList{
+				PROFILE:        "",
+				ROA:            "/registered-office-address",
+				OFFICERS_LIST:  "/officers",
+				FILING_HISTORY: "/filing-history",
+				INSOLVENCY:     "/insolvency",
+				CHARGES:        "/charges/",
+				CHARGES_ID:     "/charges/{{.ChargeId}}",
+				UK_ESTABLISHED: "/uk-establishments",
+			}},
+		PSC: UrlCategory{
+			Category: "/company/{{.CompanyNum}}/persons-with-significant-control",
+			List: UrlList{
+				LIST:          "",
+				STATEMENTS:    "-statements",
+				CORPORATE:     "/corporate-entity/{{.PscId}}",
+				INDIVIDUAL:    "/individual/{{.PscId}}",
+				LEGAL:         "/legal-person/{{.PscId}}",
+				STATEMENTS_ID: "-statements/{{.StatementId}}",
+				SUPER_SECURE:  "/super-secure/{{.SuperSecureId}}",
+			}},
+		REGISTERS: UrlCategory{
+			Category: "/company/{{.CompanyNum}}/registers", List: UrlList{}},
+		EXEMPTIONS: UrlCategory{
+			Category: "/company/{{.CompanyNum}}/exemptions", List: UrlList{}},
+	},
 }
 
 /*
@@ -111,22 +121,32 @@ type Client struct {
 */
 
 //__________________________________________________
-func GetApiUrl(cat string, subcat string, param *TemplateUrl) (string, error) {
-	c := Urls[cat]
-	url := c.name
-	if val, ok := c.subList[subcat]; ok {
+func GetApiUrl(cat string, subcat string, param *TemplateUrl, apiParam *pkgApi.ApiParam) error {
+
+	c := ApiUrls.Urls[cat]
+	// get proper Host
+	host := c.Host
+	if len(host) == 0 {
+		host = ApiUrls.DefaultHost
+	}
+
+	// build the url
+	url := c.Category
+	if val, ok := c.List[subcat]; ok {
 		url += val
 	}
 	t, err := urlTemplate.Parse(url)
 	if err != nil {
-		log.Printf("Error[%s] parsing URL template [%s] with [%s][%s][%v]", err, url, cat, subcat, param)
+		log.Printf("Error[%s] parsing URL template [%s]%s] with [%s][%s][%v]", err, host, url, cat, subcat, param)
 	}
 	var buff bytes.Buffer
 	err = t.Execute(&buff, param)
 	if err != nil {
-		log.Printf("Error[%s] executing URL template [%s] with [%s][%s][%v]", err, url, cat, subcat, param)
+		log.Printf("Error[%s] executing URL template [%s][%s] with [%s][%s][%v]", err, host, url, cat, subcat, param)
 	}
-	fmt.Printf("executing URL template [%s] with [%s][%s][%v]", url, cat, subcat, param)
+	fmt.Printf("executing URL template [%s][%s] with [%s][%s][%v]", host, url, cat, subcat, param)
 	fmt.Printf("-------------[%s]\n", buff.String())
-	return buff.String(), err
+	apiParam.Host = host
+	apiParam.Url = buff.String()
+	return err
 }
