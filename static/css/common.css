@@ -1,0 +1,111 @@
+
+/*QuickReset*/ * {margin:0;box-sizing:border-box;}
+
+html, body{
+  height:100vh;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  font-family: "Lato", sans-serif;
+}
+
+header {
+  height: 90px;
+  width: 100%;
+  background: linear-gradient(to bottom, hsl(75,100%,16%) 0%,hsl(76,100%,28%) 100%);
+  /*border-bottom: 1px solid green;*/
+}
+.menu-bar {
+  height: 25px;
+  width: 100%;
+  text-align: center;
+  background: rgba(0, 0, 0, .5);
+}
+
+.main-area {
+  flex: 1;
+  background: fixed linear-gradient(to bottom, hsl(200,27%,2%) 0%,hsl(203,29%,26%) 100%);
+  border: 1px solid #33B5E5;
+}
+
+footer {
+  height: 25px;
+  width: 100%;
+  background: #132535;
+}
+
+.text-default {
+    color: green;
+    text-align: left;
+    font-size: 15px;
+}
+.flex-main-wrapper {
+     display: flex;
+     flex-flow: row nowrap;
+     justify-content: center;
+     height:100%;
+}
+
+.col-menu {
+   border-right: 1px solid #33B5E5;
+   width: 25%;
+}
+.col-out {
+   border-right: 1px solid #33B5E5;
+   width: 50%;
+}
+.col-history {
+   width: 25%;
+}
+
+.col-menu .col-out .col-history {
+  height: 100%;
+}
+
+/*__________________ NAV BUTTON __________________*/
+
+.topnav {
+  overflow: hidden;
+  background-color: #333;
+}
+
+.topnav a {
+  float: left;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+}
+
+.topnav a:hover {
+  background-color: #ddd;
+  color: black;
+}
+
+.topnav a.active {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.topnav input[type=text] {
+  float: right;
+  padding: 6px;
+  border: none;
+  margin-top: 8px;
+  margin-right: 16px;
+  font-size: 17px;
+}
+
+/*__________________ TEXT AREA __________________*/
+
+.json-text-area {
+  height: 95%;
+  width: 100%;
+  resize: none;
+  overflow-y: scroll;
+  background-color: #e0e0eb;
+}
+/*__________________ END __________________*/
