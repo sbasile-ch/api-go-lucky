@@ -10,12 +10,17 @@ body {
   flex-direction: column;
   font-family: "Lato", sans-serif;
 }
-
+.logo-txt{
+  color: #86b300;
+  font-family: "Courier New"
+  font-size: 10px;
+}
 header {
   height: 90px;
   width: 100%;
   background: linear-gradient(to bottom, hsl(75,100%,16%) 0%,hsl(76,100%,28%) 100%);
-  /*border-bottom: 1px solid green;*/
+  padding: 5px;
+  color: #cc9900;
 }
 .menu-bar {
   height: 25px;
@@ -28,12 +33,20 @@ header {
   flex: 1;
   background: fixed linear-gradient(to bottom, hsl(200,27%,2%) 0%,hsl(203,29%,26%) 100%);
   border: 1px solid #33B5E5;
+  overflow: hidden
 }
 
 footer {
   height: 25px;
   width: 100%;
   background: #132535;
+  padding: 5px;
+  text-align: center;
+}
+.footer-txt {
+  color: #cc9900;
+  font-size: 12px;
+  font-family: "Courier New"
 }
 
 .text-default {
@@ -70,6 +83,7 @@ footer {
 }
 
 /*__________________ NAV BUTTON __________________*/
+
 
 .topnav {
   overflow: hidden;
@@ -110,6 +124,14 @@ footer {
   height: 95%;
   width: 100%;
   background-color: #e0e0eb;
+  /*
+   * background-color: #e0e0eb;
+  */
   overflow: auto;
+}
+.xxx {
+  height: 100%;
+  width: 100%;
+  background-color: #e0e0eb;
 }
 /*__________________ END __________________*/

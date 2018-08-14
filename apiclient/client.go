@@ -35,15 +35,14 @@ var apiKey string = os.Getenv("MY_CH_API")
 //__________________________________________________
 func GetApiResp(param *ApiParam) (respTxt string, err error) {
 	//var c = &http.Client{Timeout: Timeout: param.secTimeout}
-	var c = &http.Client{Timeout: 10 * time.Second}
+	var c = &http.Client{Timeout: 3 * time.Second}
 	req, err := http.NewRequest("GET", param.Host+param.Url, nil)
 	if err != nil {
 		log.Printf("Error[%s] while forming new HTTP request [%s][%s]", err, param.Host, param.Url)
 		return
 	}
 	//req.Header.Set("Accept", "application/json")
-	//req.Header.Set("Host", param.Host)
-	//req.Header.Set("User-Agent", param.UserAgent)
+	req.Header.Set("User-Agent", param.UserAgent)
 	req.Header.Set("Authorization", apiKey)
 
 	resp, err := c.Do(req)
@@ -57,8 +56,6 @@ func GetApiResp(param *ApiParam) (respTxt string, err error) {
 		log.Printf("Error[%s] while processing  HTTP response [%s][%s][%v]", err, param.Host, param.Url, *c)
 		return
 	}
-	fmt.Printf("------API GET -1----[%s]-\n", string(respTxt))
-	//return string(buff), json.NewDecoder(resp.Body).Decode(apiResp)
-
+	fmt.Printf("-------------[%s]\n", string(buff))
 	return string(buff), err
 }

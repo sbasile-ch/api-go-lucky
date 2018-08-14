@@ -9,10 +9,65 @@ import (
 	"net/http"
 )
 
-type CompanyInfo struct {
-	CompanyNum   string
-	JsonTextArea string
-	OfficerJson  string
+type MainTemplateVars struct {
+	CompanyNum    string
+	JsonTextArea  string
+	ApiUrl        string
+	CmdCategory   string
+	CmdValue      string
+	OfficerId     string
+	ChargeId      string
+	PscId         string
+	StatementId   string
+	SuperSecureId string
+}
+
+//__________________________________________________
+func GetCompanyOfficers(w http.ResponseWriter, r *http.Request) {
+	GetCompanyCmd(pkgUrl.COMPANY, pkgUrl.OFFICERS_LIST, w, r)
+}
+
+//__________________________________________________
+func GetCompanyPscs(w http.ResponseWriter, r *http.Request) {
+	GetCompanyCmd(pkgUrl.PSC, pkgUrl.LIST, w, r)
+}
+
+//__________________________________________________
+func GetCompanyRegisters(w http.ResponseWriter, r *http.Request) {
+	GetCompanyCmd(pkgUrl.REGISTERS, "", w, r)
+}
+
+//__________________________________________________
+func GetCompanyCmd(CmdCategory string, CmdValue string, w http.ResponseWriter, r *http.Request) {
+	t, err := template.ParseFiles("templates/index.html")
+	if err != nil {
+		log.Printf("Error[%s] on HTML Template Parse", err)
+	} else {
+
+		if len(CmdCategory) == 0 {
+			CmdCategory = r.FormValue("CmdCategory")
+			CmdValue = r.FormValue("CmdValue")
+		}
+		fmt.Printf("-------------[%s][%s]\n", CmdCategory, CmdValue)
+		//templVars := MainTemplateVars{CompanyNum: r.FormValue("CompanyNum")}
+		templVars := MainTemplateVars{CompanyNum: "00006400"}
+
+		param := pkgUrl.TemplateUrl{CompanyNum: templVars.CompanyNum}
+		api := pkgApi.ApiParam{}
+		//err = pkgUrl.GetApiUrl(pkgUrl.COMPANY, pkgUrl.ROA, &param, &api)
+		err = pkgUrl.GetApiUrl(CmdCategory, CmdValue, &param, &api)
+		templVars.ApiUrl = api.Host + api.Url
+		respTxt, err := pkgApi.GetApiResp(&api)
+		if err != nil {
+			log.Printf("Error[%s] calling the API", err)
+		} else {
+			templVars.JsonTextArea = respTxt
+			err = t.Execute(w, templVars)
+			if err != nil {
+				log.Printf("Error[%s] on HTML Template Execute [%v]", err, templVars)
+			}
+		}
+	}
 }
 
 //__________________________________________________
@@ -20,46 +75,39 @@ func GetCompanyProfile(w http.ResponseWriter, r *http.Request) {
 	t, err := template.ParseFiles("templates/index.html")
 	if err != nil {
 		log.Printf("Error[%s] on HTML Template Parse", err)
-	}
+	} else {
 
-	pageVars := CompanyInfo{CompanyNum: r.FormValue("CompanyNum")}
+		templVars := MainTemplateVars{CompanyNum: r.FormValue("CompanyNum")}
 
-	fmt.Printf("-----received--------[%s]\n", pageVars.CompanyNum)
-
-	param := pkgUrl.TemplateUrl{CompanyNum: pageVars.CompanyNum}
-	api := pkgApi.ApiParam{}
-	//err = pkgUrl.GetApiUrl(pkgUrl.COMPANY, pkgUrl.ROA, &param, &api)
-	err = pkgUrl.GetApiUrl(pkgUrl.COMPANY, pkgUrl.FILING_HISTORY, &param, &api)
-	fmt.Printf("-------------[%v]\n", &api)
-	respTxt, err := pkgApi.GetApiResp(&api)
-	if err != nil {
-		log.Printf("Error[%s] calling the API", err)
-	}
-	fmt.Printf("--received-----------[%s]\n", respTxt)
-
-	pageVars.JsonTextArea = respTxt
-	err = t.Execute(w, pageVars)
-	if err != nil {
-		log.Printf("Error[%s] on HTML Template Execute [%v]", err, pageVars)
+		param := pkgUrl.TemplateUrl{CompanyNum: templVars.CompanyNum}
+		api := pkgApi.ApiParam{}
+		err = pkgUrl.GetApiUrl(pkgUrl.COMPANY, pkgUrl.FILING_HISTORY, &param, &api)
+		templVars.ApiUrl = api.Host + api.Url
+		respTxt, err := pkgApi.GetApiResp(&api)
+		if err != nil {
+			log.Printf("Error[%s] calling the API", err)
+		} else {
+			templVars.JsonTextArea = respTxt
+			err = t.Execute(w, templVars)
+			if err != nil {
+				log.Printf("Error[%s] on HTML Template Execute [%v]", err, templVars)
+			}
+		}
 	}
 }
 
 //__________________________________________________
 func StartPage(w http.ResponseWriter, r *http.Request) {
-	pageVars := CompanyInfo{
-		CompanyNum:   "10989097",
-		JsonTextArea: "I'm inside the startPage",
-		OfficerJson:  "To Evaluate 1",
-	}
+	templVars := MainTemplateVars{CompanyNum: "00006400"}
 
 	t, err := template.ParseFiles("templates/index.html")
 
 	if err != nil {
 		log.Print("template parsing error: ", err)
-	}
-
-	err = t.Execute(w, pageVars)
-	if err != nil {
-		log.Print("template executing error: ", err)
+	} else {
+		err = t.Execute(w, templVars)
+		if err != nil {
+			log.Print("template executing error: ", err)
+		}
 	}
 }

@@ -12,8 +12,8 @@
     <body>
 		<header> API GO
              <img class="app-logo" type="image/svg+xml" src="/static/pictures/4lclover.svg">
-                <!-- Your fall back here -->
             </img>
+            <span class="logo-txt">{lucky}</span>
         </header>
 		<div class="menu-bar">
              <form action="/getCompany" method="post">
@@ -29,9 +29,11 @@
                 <!-- ___________ COL 1/3 ________ -->
                   <div class="col-menu">
                       <div class="topnav">
-                          <a href="#news"><i class="fas fa-user"></i> Officer</a>
-                          <a href="#contact"><i class="fas fa-id-card"></i> PSC</a>
-                          <a href="#contact"><i class="fas fa-file-alt"></i> Registers</a>
+                         <form action="/GetCompanyCmd" method="post">
+                             <input type="hidden"  id="CompanyNum" name="CompanyNum" value="{{.CompanyNum}}">
+                          <a id="/getOfficers"  href="#" href="/getOfficers"><i class="fas fa-user form-submit"></i> Officer</a>
+                          <a id="/getPscs"      href="#" href="/getPscs"><i class="fas fa-id-card form-submit"></i> PSC</a>
+                          <a id="/getRegisters" href="#" href="/getRegisters"><i class="fas fa-file-alt form-submit"></i> Registers</a>
                       </div>
 
                       <hr>
@@ -55,6 +57,6 @@
         </div>
 
 		<footer>
-            FOOTER
+            <span class="footer-txt">{{.ApiUrl}}</span>
         </footer>
 </body> </html>
