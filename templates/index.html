@@ -5,14 +5,20 @@
 
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
         <link rel="stylesheet" href="/static/css/common.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="/static/js/common.js"></script>
+        <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
     </head>
     <body>
-		<header> GO.1 </header>
+		<header> API GO
+             <img class="app-logo" type="image/svg+xml" src="/static/pictures/4lclover.svg">
+                <!-- Your fall back here -->
+            </img>
+        </header>
 		<div class="menu-bar">
              <form action="/getCompany" method="post">
                  <label for="CompanyNum"><i class="fas fa-building"></i> Company:</label>
                  <input type="text"  id="CompanyNum" name="CompanyNum" value="{{.CompanyNum}}">
-                 <input type="hidden"  id="JsonTextArea" name="JsonTextArea" value="{{.JsonTextArea}}">
                  <input type="submit" value="Search">
              </form>
         </div>
@@ -36,8 +42,10 @@
 
                 <!-- ___________ COL 2/3 ________ -->
                   <div class="col-out">
-                      <textarea id="json-text-area" name="{{.JsonTextArea}}" class="json-text-area">
-                       </textarea>
+                      <pre class="output-area" id="output-area">
+                          <!-- pre class="prettyprint">{{.JsonTextArea}}</prei  -->
+                          {{.JsonTextArea}}
+                      </pre>
                   </div>
 
                 <!-- ___________ COL 3/3 ________ -->

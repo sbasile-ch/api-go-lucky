@@ -61,7 +61,12 @@ footer {
 }
 
 .col-menu .col-out .col-history {
-  height: 100%;
+   height: 100%;
+}
+
+/*__________________ LOGO __________________*/
+.app-logo {
+   width: 3%;
 }
 
 /*__________________ NAV BUTTON __________________*/
@@ -99,13 +104,12 @@ footer {
   font-size: 17px;
 }
 
-/*__________________ TEXT AREA __________________*/
+/*__________________ OUTPUT AREA __________________*/
 
-.json-text-area {
+.output-area {
   height: 95%;
   width: 100%;
-  resize: none;
-  overflow-y: scroll;
   background-color: #e0e0eb;
+  overflow: auto;
 }
 /*__________________ END __________________*/

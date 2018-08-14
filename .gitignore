@@ -1,0 +1,10 @@
+._*
+*.sw[op]
+*.vim
+/api-go-lucky
+build
+api-go-lucky-*.zip
+build.log
+test.xml
+lint.txt
+
