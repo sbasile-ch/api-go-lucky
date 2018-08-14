@@ -2,6 +2,7 @@ package apiurls
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	pkgApi "github.com/sbasile-ch/api-go-lucky/apiclient"
 	"log"
@@ -34,6 +35,8 @@ const STATEMENTS_ID string = "STATEMENTS_ID"
 const SUPER_SECURE string = "SUPER_SECURE"
 const REGISTERS string = "REGISTERS"
 const EXEMPTIONS string = "EXEMPTIONS"
+
+var JSONEXPORT string = ExportUrls()
 
 type TemplateUrl struct {
 	OfficerId     string
@@ -119,6 +122,42 @@ type Client struct {
 	httpClient *http.Client
 }
 */
+
+type JsonElem struct {
+	CmdCategory string   `json:"CmdCategory"`
+	CmdValues   []string `json:"CmdValues"`
+}
+
+//__________________________________________________
+func ExportUrls() (s string) {
+	fmt.Printf("--ENTERED-----------[%v]\n", ApiUrls)
+	jsonStruct := make([]JsonElem, len(ApiUrls.Urls))
+
+	i := 0
+	for k, Val := range ApiUrls.Urls {
+		fmt.Printf("--SERIAL-----------[%s]\n", k)
+
+		jsonStruct[i].CmdCategory = k
+
+		values := make([]string, len(Val.List))
+		j := 0
+		for v := range Val.List {
+			fmt.Printf("--SERIAL----------------------------[%s]\n", v)
+			values[j] = v
+			j++
+		}
+		jsonStruct[i].CmdValues = values
+		i++
+	}
+
+	output, err := json.MarshalIndent(&jsonStruct, "", "\t\t")
+	if err != nil {
+		fmt.Println("Error marshalling to JSON:", err)
+		return
+	}
+	s = string(output)
+	return
+}
 
 //__________________________________________________
 func GetApiUrl(cat string, subcat string, param *TemplateUrl, apiParam *pkgApi.ApiParam) error {

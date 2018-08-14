@@ -28,13 +28,26 @@
 
                 <!-- ___________ COL 1/3 ________ -->
                   <div class="col-menu">
+                      <span id="command-json-list" class="command-json-list"> {{.CommandJsonList}}</span>
+                      <form action="/GetCompanyCmd" method="post">
+                          <select id="select-category" class="select-category">
+                          </select>
+
+                          <select id="select-cmd" class="select-cmd">
+                          </select>
+                      </form>
+                          <!---
+                         <form action="/GetCompanyCmd" method="post">
+
                       <div class="topnav">
                          <form action="/GetCompanyCmd" method="post">
                              <input type="hidden"  id="CompanyNum" name="CompanyNum" value="{{.CompanyNum}}">
                           <a id="/getOfficers"  href="#" href="/getOfficers"><i class="fas fa-user form-submit"></i> Officer</a>
                           <a id="/getPscs"      href="#" href="/getPscs"><i class="fas fa-id-card form-submit"></i> PSC</a>
                           <a id="/getRegisters" href="#" href="/getRegisters"><i class="fas fa-file-alt form-submit"></i> Registers</a>
+                         </form>
                       </div>
+                          -->
 
                       <hr>
                       <div class="topnav">

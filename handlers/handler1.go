@@ -10,16 +10,17 @@ import (
 )
 
 type MainTemplateVars struct {
-	CompanyNum    string
-	JsonTextArea  string
-	ApiUrl        string
-	CmdCategory   string
-	CmdValue      string
-	OfficerId     string
-	ChargeId      string
-	PscId         string
-	StatementId   string
-	SuperSecureId string
+	CompanyNum      string
+	JsonTextArea    string
+	ApiUrl          string
+	CmdCategory     string
+	CmdValue        string
+	OfficerId       string
+	ChargeId        string
+	PscId           string
+	StatementId     string
+	SuperSecureId   string
+	CommandJsonList string
 }
 
 //__________________________________________________
@@ -77,7 +78,7 @@ func GetCompanyProfile(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error[%s] on HTML Template Parse", err)
 	} else {
 
-		templVars := MainTemplateVars{CompanyNum: r.FormValue("CompanyNum")}
+		templVars := MainTemplateVars{CompanyNum: r.FormValue("CompanyNum"), CommandJsonList: pkgUrl.JSONEXPORT}
 
 		param := pkgUrl.TemplateUrl{CompanyNum: templVars.CompanyNum}
 		api := pkgApi.ApiParam{}
@@ -98,7 +99,9 @@ func GetCompanyProfile(w http.ResponseWriter, r *http.Request) {
 
 //__________________________________________________
 func StartPage(w http.ResponseWriter, r *http.Request) {
-	templVars := MainTemplateVars{CompanyNum: "00006400"}
+	s := pkgUrl.JSONEXPORT
+	log.Print("======[%s]====== ", s)
+	templVars := MainTemplateVars{CompanyNum: "00006400", CommandJsonList: pkgUrl.JSONEXPORT}
 
 	t, err := template.ParseFiles("templates/index.html")
 
