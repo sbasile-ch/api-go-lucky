@@ -38,9 +38,11 @@ const EXEMPTIONS string = "EXEMPTIONS"
 
 var JSONEXPORT string = ExportUrls()
 
-type TemplateUrl struct {
-	OfficerId     string
+type UrlVariables struct {
+	CmdCategory   string
+	CmdValue      string
 	CompanyNum    string
+	OfficerId     string
 	ChargeId      string
 	PscId         string
 	StatementId   string
@@ -49,12 +51,18 @@ type TemplateUrl struct {
 
 var urlTemplate = template.New("Urls")
 
-type UrlList map[string]string
+type VarArgs []string
+
+type CmdUrl struct {
+	Url  string
+	Args VarArgs
+}
+type CmdUrlList map[string]CmdUrl
 
 type UrlCategory struct {
 	Category string
 	Host     string // if need of different from 'DefaultHost'
-	List     UrlList
+	List     CmdUrlList
 }
 
 type UrlSet map[string]UrlCategory
@@ -70,47 +78,47 @@ var ApiUrls = ApiFactory{
 
 		SEARCH: UrlCategory{
 			Category: "/search",
-			List: UrlList{
-				ALL:          "",
-				COMPANY:      "/companies",
-				DISQ_OFFICER: "/disqualified-officers",
-				OFFICERS:     "/officers",
+			List: CmdUrlList{
+				ALL:          CmdUrl{},
+				COMPANY:      CmdUrl{Url: "/companies"},
+				DISQ_OFFICER: CmdUrl{Url: "/disqualified-officers"},
+				OFFICERS:     CmdUrl{Url: "/officers"},
 			}},
 		OFFICER_APPOINTMENTS: UrlCategory{
-			Category: "/officers/{{.OfficerId}}/appointments", List: UrlList{}},
+			Category: "/officers/{{.OfficerId}}/appointments"},
 		OFFICER_DISQUALIFIED: UrlCategory{
 			Category: "/disqualified-officers",
-			List: UrlList{
-				CORPORATE: "/corporate/{{.OfficerId}}",
-				NATURAL:   "/natural/{{.OfficerId}}",
+			List: CmdUrlList{
+				CORPORATE: CmdUrl{Url: "/corporate/{{.OfficerId}}", Args: []string{"OfficerId"}},
+				NATURAL:   CmdUrl{Url: "/natural/{{.OfficerId}}", Args: []string{"OfficerId"}},
 			}},
 		COMPANY: UrlCategory{
 			Category: "/company/{{.CompanyNum}}",
-			List: UrlList{
-				PROFILE:        "",
-				ROA:            "/registered-office-address",
-				OFFICERS_LIST:  "/officers",
-				FILING_HISTORY: "/filing-history",
-				INSOLVENCY:     "/insolvency",
-				CHARGES:        "/charges/",
-				CHARGES_ID:     "/charges/{{.ChargeId}}",
-				UK_ESTABLISHED: "/uk-establishments",
+			List: CmdUrlList{
+				PROFILE:        CmdUrl{},
+				ROA:            CmdUrl{Url: "/registered-office-address"},
+				OFFICERS_LIST:  CmdUrl{Url: "/officers"},
+				FILING_HISTORY: CmdUrl{Url: "/filing-history"},
+				INSOLVENCY:     CmdUrl{Url: "/insolvency"},
+				CHARGES:        CmdUrl{Url: "/charges/"},
+				CHARGES_ID:     CmdUrl{Url: "/charges/{{.ChargeId}}", Args: []string{"ChargeId"}},
+				UK_ESTABLISHED: CmdUrl{Url: "/uk-establishments"},
 			}},
 		PSC: UrlCategory{
 			Category: "/company/{{.CompanyNum}}/persons-with-significant-control",
-			List: UrlList{
-				LIST:          "",
-				STATEMENTS:    "-statements",
-				CORPORATE:     "/corporate-entity/{{.PscId}}",
-				INDIVIDUAL:    "/individual/{{.PscId}}",
-				LEGAL:         "/legal-person/{{.PscId}}",
-				STATEMENTS_ID: "-statements/{{.StatementId}}",
-				SUPER_SECURE:  "/super-secure/{{.SuperSecureId}}",
+			List: CmdUrlList{
+				LIST:          CmdUrl{},
+				STATEMENTS:    CmdUrl{Url: "-statements"},
+				CORPORATE:     CmdUrl{Url: "/corporate-entity/{{.PscId}}", Args: []string{"PscId"}},
+				INDIVIDUAL:    CmdUrl{Url: "/individual/{{.PscId}}", Args: []string{"PscId"}},
+				LEGAL:         CmdUrl{Url: "/legal-person/{{.PscId}}", Args: []string{"PscId"}},
+				STATEMENTS_ID: CmdUrl{Url: "-statements/{{.StatementId}}", Args: []string{"StatementId"}},
+				SUPER_SECURE:  CmdUrl{Url: "/super-secure/{{.SuperSecureId}}", Args: []string{"SuperSecureId"}},
 			}},
 		REGISTERS: UrlCategory{
-			Category: "/company/{{.CompanyNum}}/registers", List: UrlList{}},
+			Category: "/company/{{.CompanyNum}}/registers"},
 		EXEMPTIONS: UrlCategory{
-			Category: "/company/{{.CompanyNum}}/exemptions", List: UrlList{}},
+			Category: "/company/{{.CompanyNum}}/exemptions"},
 	},
 }
 
@@ -122,10 +130,14 @@ type Client struct {
 	httpClient *http.Client
 }
 */
+type JsonCmd struct {
+	CmdName string   `json:"CmdName"`
+	Args    []string `json:"Args"`
+}
 
 type JsonElem struct {
-	CmdCategory string   `json:"CmdCategory"`
-	CmdValues   []string `json:"CmdValues"`
+	CmdCategory string    `json:"CmdCategory"`
+	CmdValues   []JsonCmd `json:"CmdValues"`
 }
 
 //__________________________________________________
@@ -139,14 +151,15 @@ func ExportUrls() (s string) {
 
 		jsonStruct[i].CmdCategory = k
 
-		values := make([]string, len(Val.List))
+		Cmds := make([]JsonCmd, len(Val.List))
 		j := 0
-		for v := range Val.List {
-			fmt.Printf("--SERIAL----------------------------[%s]\n", v)
-			values[j] = v
+		for c, v := range Val.List {
+			fmt.Printf("--SERIAL----------------------------[%s][%v]\n", c, v)
+			Cmds[j].CmdName = c
+			Cmds[j].Args = v.Args
 			j++
 		}
-		jsonStruct[i].CmdValues = values
+		jsonStruct[i].CmdValues = Cmds
 		i++
 	}
 
@@ -160,9 +173,9 @@ func ExportUrls() (s string) {
 }
 
 //__________________________________________________
-func GetApiUrl(cat string, subcat string, param *TemplateUrl, apiParam *pkgApi.ApiParam) error {
+func GetApiUrl(UrlVars *UrlVariables, ApiVars *pkgApi.ApiVars) error {
 
-	c := ApiUrls.Urls[cat]
+	c := ApiUrls.Urls[UrlVars.CmdCategory]
 	// get proper Host
 	host := c.Host
 	if len(host) == 0 {
@@ -171,21 +184,21 @@ func GetApiUrl(cat string, subcat string, param *TemplateUrl, apiParam *pkgApi.A
 
 	// build the url
 	url := c.Category
-	if val, ok := c.List[subcat]; ok {
-		url += val
+	if val, ok := c.List[UrlVars.CmdValue]; ok {
+		url += val.Url
 	}
 	t, err := urlTemplate.Parse(url)
 	if err != nil {
-		log.Printf("Error[%s] parsing URL template [%s]%s] with [%s][%s][%v]", err, host, url, cat, subcat, param)
+		log.Printf("Error[%s] parsing URL template [%s]%s] with [%v]", err, host, url, UrlVars)
 	}
 	var buff bytes.Buffer
-	err = t.Execute(&buff, param)
+	err = t.Execute(&buff, UrlVars)
 	if err != nil {
-		log.Printf("Error[%s] executing URL template [%s][%s] with [%s][%s][%v]", err, host, url, cat, subcat, param)
+		log.Printf("Error[%s] executing URL template [%s][%s] with [%v]", err, host, url, UrlVars)
 	}
-	fmt.Printf("executing URL template [%s][%s] with [%s][%s][%v]", host, url, cat, subcat, param)
-	fmt.Printf("-------------[%s]\n", buff.String())
-	apiParam.Host = host
-	apiParam.Url = buff.String()
+	fmt.Printf("executing URL template [%s][%s] with [%v]", host, url, UrlVars)
+	//fmt.Printf("-------------[%s]\n", buff.String())
+	ApiVars.Host = host
+	ApiVars.Url = buff.String()
 	return err
 }

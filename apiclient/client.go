@@ -1,7 +1,6 @@
 package apiclient
 
 import (
-	//	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -10,7 +9,7 @@ import (
 	"time"
 )
 
-type ApiParam struct {
+type ApiVars struct {
 	Host       string
 	Url        string
 	UserAgent  string
@@ -33,7 +32,7 @@ var apiKey string = os.Getenv("MY_CH_API")
    Authorization: Basic bXlfYXBpX2tleTo=
 */
 //__________________________________________________
-func GetApiResp(param *ApiParam) (respTxt string, err error) {
+func GetApiResp(param *ApiVars) (respTxt string, err error) {
 	//var c = &http.Client{Timeout: Timeout: param.secTimeout}
 	var c = &http.Client{Timeout: 3 * time.Second}
 	req, err := http.NewRequest("GET", param.Host+param.Url, nil)
@@ -41,7 +40,6 @@ func GetApiResp(param *ApiParam) (respTxt string, err error) {
 		log.Printf("Error[%s] while forming new HTTP request [%s][%s]", err, param.Host, param.Url)
 		return
 	}
-	//req.Header.Set("Accept", "application/json")
 	req.Header.Set("User-Agent", param.UserAgent)
 	req.Header.Set("Authorization", apiKey)
 

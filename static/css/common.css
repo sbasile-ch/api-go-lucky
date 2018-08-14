@@ -33,7 +33,7 @@ header {
   flex: 1;
   background: fixed linear-gradient(to bottom, hsl(200,27%,2%) 0%,hsl(203,29%,26%) 100%);
   border: 1px solid #33B5E5;
-  overflow: hidden
+  overflow: hidden;
 }
 
 footer {
@@ -46,7 +46,7 @@ footer {
 .footer-txt {
   color: #cc9900;
   font-size: 12px;
-  font-family: "Courier New"
+  font-family: "Courier New";
 }
 
 .text-default {
@@ -145,13 +145,10 @@ footer {
   height: 95%;
   width: 100%;
   background-color: #e0e0eb;
-  /*
-   * background-color: #e0e0eb;
-  */
   overflow: auto;
 }
 /*__________________ COMMAND JSON LIST __________________*/
-.command-json-list {
+.json-cmds-list {
    display: none;
 }
 /*__________________ COMMAND SELECTS __________________*/
@@ -159,6 +156,10 @@ footer {
 }
 
 .select-cmd {
+}
+
+/*__________________ VARIABLE ARGS __________________*/
+.variable-args {
 }
 
 /*__________________ END __________________*/

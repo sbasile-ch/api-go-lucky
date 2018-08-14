@@ -33,11 +33,8 @@ func open(url string) error {
 
 //__________________________________________________
 func main() {
-	http.HandleFunc("/getCompany", pkgHndl.GetCompanyProfile)
 	http.HandleFunc("/index", pkgHndl.StartPage)
-	http.HandleFunc("/getOfficers", pkgHndl.GetCompanyOfficers)
-	http.HandleFunc("/getPscs", pkgHndl.GetCompanyPscs)
-	http.HandleFunc("/getRegisters", pkgHndl.GetCompanyRegisters)
+	http.HandleFunc("/GetCompanyCmd", pkgHndl.GetCompanyCmd)
 	//	http.HandleFunc("/setAlert", setCompanyAlert)
 
 	// serve CSS and JS files locally stored in ./static

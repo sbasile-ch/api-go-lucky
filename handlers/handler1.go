@@ -10,85 +10,40 @@ import (
 )
 
 type MainTemplateVars struct {
-	CompanyNum      string
-	JsonTextArea    string
-	ApiUrl          string
-	CmdCategory     string
-	CmdValue        string
-	OfficerId       string
-	ChargeId        string
-	PscId           string
-	StatementId     string
-	SuperSecureId   string
-	CommandJsonList string
+	JsonResponse string
+	JsonCmdsList string
+	ApiUrl       string
+	UrlVars      pkgUrl.UrlVariables
 }
 
 //__________________________________________________
-func GetCompanyOfficers(w http.ResponseWriter, r *http.Request) {
-	GetCompanyCmd(pkgUrl.COMPANY, pkgUrl.OFFICERS_LIST, w, r)
-}
-
-//__________________________________________________
-func GetCompanyPscs(w http.ResponseWriter, r *http.Request) {
-	GetCompanyCmd(pkgUrl.PSC, pkgUrl.LIST, w, r)
-}
-
-//__________________________________________________
-func GetCompanyRegisters(w http.ResponseWriter, r *http.Request) {
-	GetCompanyCmd(pkgUrl.REGISTERS, "", w, r)
-}
-
-//__________________________________________________
-func GetCompanyCmd(CmdCategory string, CmdValue string, w http.ResponseWriter, r *http.Request) {
+func GetCompanyCmd(w http.ResponseWriter, r *http.Request) {
 	t, err := template.ParseFiles("templates/index.html")
 	if err != nil {
 		log.Printf("Error[%s] on HTML Template Parse", err)
 	} else {
 
-		if len(CmdCategory) == 0 {
-			CmdCategory = r.FormValue("CmdCategory")
-			CmdValue = r.FormValue("CmdValue")
+		UrlVars := pkgUrl.UrlVariables{
+			CmdCategory:   r.FormValue("CmdCategory"),
+			CmdValue:      r.FormValue("CmdValue"),
+			CompanyNum:    r.FormValue("CompanyNum"),
+			OfficerId:     r.FormValue("OfficerId"),
+			ChargeId:      r.FormValue("ChargeId"),
+			PscId:         r.FormValue("PscId"),
+			StatementId:   r.FormValue("StatementId"),
+			SuperSecureId: r.FormValue("SuperSecureId"),
 		}
-		fmt.Printf("-------------[%s][%s]\n", CmdCategory, CmdValue)
-		//templVars := MainTemplateVars{CompanyNum: r.FormValue("CompanyNum")}
-		templVars := MainTemplateVars{CompanyNum: "00006400"}
+		templVars := MainTemplateVars{JsonCmdsList: pkgUrl.JSONEXPORT, UrlVars: UrlVars}
 
-		param := pkgUrl.TemplateUrl{CompanyNum: templVars.CompanyNum}
-		api := pkgApi.ApiParam{}
-		//err = pkgUrl.GetApiUrl(pkgUrl.COMPANY, pkgUrl.ROA, &param, &api)
-		err = pkgUrl.GetApiUrl(CmdCategory, CmdValue, &param, &api)
-		templVars.ApiUrl = api.Host + api.Url
-		respTxt, err := pkgApi.GetApiResp(&api)
+		fmt.Printf("-----QUI-------[%s][%s][%+v]\n", UrlVars.CmdCategory, UrlVars.CmdValue, UrlVars)
+		ApiVars := pkgApi.ApiVars{}
+		err = pkgUrl.GetApiUrl(&UrlVars, &ApiVars)
+		templVars.ApiUrl = ApiVars.Host + ApiVars.Url
+		respTxt, err := pkgApi.GetApiResp(&ApiVars)
 		if err != nil {
 			log.Printf("Error[%s] calling the API", err)
 		} else {
-			templVars.JsonTextArea = respTxt
-			err = t.Execute(w, templVars)
-			if err != nil {
-				log.Printf("Error[%s] on HTML Template Execute [%v]", err, templVars)
-			}
-		}
-	}
-}
-
-//__________________________________________________
-func GetCompanyProfile(w http.ResponseWriter, r *http.Request) {
-	t, err := template.ParseFiles("templates/index.html")
-	if err != nil {
-		log.Printf("Error[%s] on HTML Template Parse", err)
-	} else {
-
-		templVars := MainTemplateVars{CompanyNum: r.FormValue("CompanyNum"), CommandJsonList: pkgUrl.JSONEXPORT}
-
-		param := pkgUrl.TemplateUrl{CompanyNum: templVars.CompanyNum}
-		api := pkgApi.ApiParam{}
-		err = pkgUrl.GetApiUrl(pkgUrl.COMPANY, pkgUrl.FILING_HISTORY, &param, &api)
-		templVars.ApiUrl = api.Host + api.Url
-		respTxt, err := pkgApi.GetApiResp(&api)
-		if err != nil {
-			log.Printf("Error[%s] calling the API", err)
-		} else {
-			templVars.JsonTextArea = respTxt
+			templVars.JsonResponse = respTxt
 			err = t.Execute(w, templVars)
 			if err != nil {
 				log.Printf("Error[%s] on HTML Template Execute [%v]", err, templVars)
@@ -99,9 +54,7 @@ func GetCompanyProfile(w http.ResponseWriter, r *http.Request) {
 
 //__________________________________________________
 func StartPage(w http.ResponseWriter, r *http.Request) {
-	s := pkgUrl.JSONEXPORT
-	log.Print("======[%s]====== ", s)
-	templVars := MainTemplateVars{CompanyNum: "00006400", CommandJsonList: pkgUrl.JSONEXPORT}
+	templVars := MainTemplateVars{UrlVars: pkgUrl.UrlVariables{CompanyNum: "00006400"}, JsonCmdsList: pkgUrl.JSONEXPORT}
 
 	t, err := template.ParseFiles("templates/index.html")
 
