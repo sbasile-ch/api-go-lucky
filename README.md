@@ -23,13 +23,10 @@ export GOPATH=${GOPATH:-$HOME/go}
 export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
 ```
 
-2. Git clone:
+2. Install:
 ```shell
-mkdir -p $GOPATH/src/github.com/sbasile-ch/api-go-lucky
-cd !$
-git clone git@github.com/sbasile-ch/api-go-lucky.git
-cd api-go-lucky
-go build && ./api-go-lucky
+go get github.com/sbasile-ch/api-go-lucky
+api-go-lucky
 ```
 
 ## Configuration
