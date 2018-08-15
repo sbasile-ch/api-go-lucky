@@ -1,7 +1,7 @@
 API GO lucky
 ====
 
-![alt text](https://github.com/sbasile-ch/api-go-lucky/doc/images/img1/.png "")
+![alt text](https://github.com/sbasile-ch/api-go-lucky/tree/master/doc/images/img1.png "First working state")
 
 Application to interact with the Companies House APIs.
 - [CH API](https://developer.companieshouse.gov.uk/api/docs/index.html).
@@ -37,10 +37,10 @@ go build && ./api-go-lucky
 The essential configuration item is:
 
 ```bash
-MY_CH_API=<your CH API key>
+export MY_CH_API=<your CH API key>
 ```
 
-## Configuration
+## TODO
 - Add alert trigger and logging/display Panel
 - Add History Panel
 - Add tests
