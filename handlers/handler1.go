@@ -22,7 +22,7 @@ type MainTemplateVars struct {
 func GetCompanyCmd(w http.ResponseWriter, r *http.Request) {
 	t, err := template.ParseFiles("templates/index.html")
 	if err != nil {
-		log.Printf("Error[%s] on HTML Template Parse", err)
+		log.Printf("Error[%v] on HTML Template Parse", err)
 	} else {
 
 		CmdCategory := r.FormValue("CmdCategory")
@@ -47,12 +47,12 @@ func GetCompanyCmd(w http.ResponseWriter, r *http.Request) {
 		templVars.ApiUrl = ApiVars.Host + ApiVars.Url
 		respTxt, err := pkgApi.GetApiResp(&ApiVars)
 		if err != nil {
-			log.Printf("Error[%s] calling the API", err)
+			log.Printf("Error[%v] calling the API", err)
 		} else {
 			templVars.JsonResponse = respTxt
 			err = t.Execute(w, templVars)
 			if err != nil {
-				log.Printf("Error[%s] on HTML Template Execute [%v]", err, templVars)
+				log.Printf("Error[%v] on HTML Template Execute [%v]", err, templVars)
 			}
 		}
 	}
@@ -65,11 +65,11 @@ func StartPage(w http.ResponseWriter, r *http.Request) {
 	t, err := template.ParseFiles("templates/index.html")
 
 	if err != nil {
-		log.Print("template parsing error: ", err)
+		log.Printf("Error[%v] parsing Template", err)
 	} else {
 		err = t.Execute(w, templVars)
 		if err != nil {
-			log.Print("template executing error: ", err)
+			log.Printf("Error[%v] executing Template", err)
 		}
 	}
 }

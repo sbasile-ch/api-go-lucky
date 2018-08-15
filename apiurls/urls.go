@@ -165,7 +165,7 @@ func ExportUrls() (s string) {
 
 	output, err := json.MarshalIndent(&jsonStruct, "", "\t\t")
 	if err != nil {
-		fmt.Println("Error marshalling to JSON:", err)
+		log.Printf("Error[%v] marshalling to JSON", err)
 		return
 	}
 	s = string(output)
@@ -189,12 +189,12 @@ func GetApiUrl(UrlVars *UrlVariables, ApiVars *pkgApi.ApiVars) error {
 	}
 	t, err := urlTemplate.Parse(url)
 	if err != nil {
-		log.Printf("Error[%s] parsing URL template [%s]%s] with [%v]", err, host, url, UrlVars)
+		log.Printf("Error[%v] parsing URL template [%s]%s] with [%v]", err, host, url, UrlVars)
 	}
 	var buff bytes.Buffer
 	err = t.Execute(&buff, UrlVars)
 	if err != nil {
-		log.Printf("Error[%s] executing URL template [%s][%s] with [%v]", err, host, url, UrlVars)
+		log.Printf("Error[%v] executing URL template [%s][%s] with [%v]", err, host, url, UrlVars)
 	}
 	fmt.Printf("executing URL template [%s][%s] with [%v]", host, url, UrlVars)
 	//fmt.Printf("-------------[%s]\n", buff.String())

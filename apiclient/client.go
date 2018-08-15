@@ -2,6 +2,7 @@ package apiclient
 
 import (
 	"fmt"
+	"github.com/sbasile-ch/api-go-lucky/config"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -33,11 +34,15 @@ var apiKey string = os.Getenv("MY_CH_API")
 */
 //__________________________________________________
 func GetApiResp(param *ApiVars) (respTxt string, err error) {
-	//var c = &http.Client{Timeout: Timeout: param.secTimeout}
-	var c = &http.Client{Timeout: 3 * time.Second}
+
+	cfg, err := config.Get()
+	if err != nil {
+		log.Printf("Error[%v] getting config", err)
+	}
+	var c = &http.Client{Timeout: time.Duration(cfg.HttpReqTimeout) * time.Second}
 	req, err := http.NewRequest("GET", param.Host+param.Url, nil)
 	if err != nil {
-		log.Printf("Error[%s] while forming new HTTP request [%s][%s]", err, param.Host, param.Url)
+		log.Printf("Error[%v] while forming new HTTP request [%s][%s]", err, param.Host, param.Url)
 		return
 	}
 	req.Header.Set("User-Agent", param.UserAgent)
@@ -45,13 +50,13 @@ func GetApiResp(param *ApiVars) (respTxt string, err error) {
 
 	resp, err := c.Do(req)
 	if err != nil {
-		log.Printf("Error[%s] while sending HTTP GET to [%s][%s][%v]", err, param.Host, param.Url, *c)
+		log.Printf("Error[%v] while sending HTTP GET to [%s][%s][%v]", err, param.Host, param.Url, *c)
 		return
 	}
 	defer resp.Body.Close()
 	buff, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Printf("Error[%s] while processing  HTTP response [%s][%s][%v]", err, param.Host, param.Url, *c)
+		log.Printf("Error[%v] while processing  HTTP response [%s][%s][%v]", err, param.Host, param.Url, *c)
 		return
 	}
 	fmt.Printf("-------------[%s]\n", string(buff))
