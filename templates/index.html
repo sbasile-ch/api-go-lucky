@@ -34,11 +34,11 @@
 
                       <form action="/GetCompanyCmd" method="post">
 
-                 {{with .UrlVars}}
                  <select id="select-category" class="select-category" name="CmdCategory"> </select>
                  <select id="select-cmd" class="select-cmd" name="CmdValue"> </select>
                           <div id="variable-args" class="variable-args"> </div>
 
+                 {{with .UrlVars}}
                          <input type="hidden"  id="CompanyNum" name="CompanyNum" value="{{.CompanyNum}}">
                  {{end}}
                          <input type="submit" value="GET">

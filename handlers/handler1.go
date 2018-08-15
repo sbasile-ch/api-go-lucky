@@ -13,6 +13,8 @@ type MainTemplateVars struct {
 	JsonResponse string
 	JsonCmdsList string
 	ApiUrl       string
+	CmdCategory  string
+	CmdValue     string
 	UrlVars      pkgUrl.UrlVariables
 }
 
@@ -23,9 +25,13 @@ func GetCompanyCmd(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error[%s] on HTML Template Parse", err)
 	} else {
 
+		CmdCategory := r.FormValue("CmdCategory")
+		CmdValue := r.FormValue("CmdValue")
 		UrlVars := pkgUrl.UrlVariables{
-			CmdCategory:   r.FormValue("CmdCategory"),
-			CmdValue:      r.FormValue("CmdValue"),
+			//CmdCategory:   r.FormValue("CmdCategory"),
+			//CmdValue:      r.FormValue("CmdValue"),
+			CmdCategory:   CmdCategory,
+			CmdValue:      CmdValue,
 			CompanyNum:    r.FormValue("CompanyNum"),
 			OfficerId:     r.FormValue("OfficerId"),
 			ChargeId:      r.FormValue("ChargeId"),
