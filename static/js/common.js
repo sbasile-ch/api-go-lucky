@@ -13,26 +13,39 @@ function populateSelects () {
     });
 }
 
+function sortOptions (array){
+    var i, len, v, html = ''
+    array.sort();
+    for ( i = 0, len = array.length; i < len; i++ ) {
+        v = array[i];
+        html += '<option value="' + v + '">' + v + '</option>';
+    }
+    return html
+}
+
+
+
 function buildSelectHtml (numselect, Category, Cmd){
     var i, len, v, html = ''
+    var options = [];
 
     for ( i = 0, len = JsonArray.length; i < len; i++ ) {
         v = JsonArray[i].CmdCategory;
         if ( numselect === 1 ) {
-            html += '<option value="' + v + '">' + v + '</option>';
+            options [i] = v
         } else if (v == Category ) {
             for ( var c = 0, l = JsonArray[i].CmdValues.length; c < l; c++ ) {
                 v = JsonArray[i].CmdValues[c].CmdName;
                 if ( numselect === 2 ) {
-                    html += '<option value="' + v + '">' + v + '</option>';
+                    options [c] = v
                 } else if (v == Cmd ) {
                     return  JsonArray[i].CmdValues[c].Args;
                 }
             }
-            return html;
+            return sortOptions (options);
         }
     }
-    return html;
+    return sortOptions (options);;
 }
 
 
@@ -41,7 +54,9 @@ function populateForm(array) {
     if (array) {
         for ( var i = 0, l = array.length; i < l; i++ ) {
             var v = array[i];
+            if (v != "CompanyNum" ) {  // CompanyNum is common so strip here
             html += '<input type="text" id="' + v + '" name="' + v + '"><label for="' + v + '">' + v + '</label>';
+            }
         }
     }
     $('#variable-args').html(html);

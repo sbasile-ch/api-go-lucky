@@ -6,6 +6,7 @@ import (
 	"fmt"
 	pkgApi "github.com/sbasile-ch/api-go-lucky/apiclient"
 	"log"
+	"regexp"
 	"text/template"
 )
 
@@ -51,13 +52,7 @@ type UrlVariables struct {
 
 var urlTemplate = template.New("Urls")
 
-type VarArgs []string
-
-type CmdUrl struct {
-	Url  string
-	Args VarArgs
-}
-type CmdUrlList map[string]CmdUrl
+type CmdUrlList map[string]string
 
 type UrlCategory struct {
 	Category string
@@ -79,41 +74,41 @@ var ApiUrls = ApiFactory{
 		SEARCH: UrlCategory{
 			Category: "/search",
 			List: CmdUrlList{
-				ALL:          CmdUrl{},
-				COMPANY:      CmdUrl{Url: "/companies"},
-				DISQ_OFFICER: CmdUrl{Url: "/disqualified-officers"},
-				OFFICERS:     CmdUrl{Url: "/officers"},
+				ALL:          "",
+				COMPANY:      "/companies",
+				DISQ_OFFICER: "/disqualified-officers",
+				OFFICERS:     "/officers",
 			}},
 		OFFICER_APPOINTMENTS: UrlCategory{
 			Category: "/officers/{{.OfficerId}}/appointments"},
 		OFFICER_DISQUALIFIED: UrlCategory{
 			Category: "/disqualified-officers",
 			List: CmdUrlList{
-				CORPORATE: CmdUrl{Url: "/corporate/{{.OfficerId}}", Args: []string{"OfficerId"}},
-				NATURAL:   CmdUrl{Url: "/natural/{{.OfficerId}}", Args: []string{"OfficerId"}},
+				CORPORATE: "/corporate/{{.OfficerId}}",
+				NATURAL:   "/natural/{{.OfficerId}}",
 			}},
 		COMPANY: UrlCategory{
 			Category: "/company/{{.CompanyNum}}",
 			List: CmdUrlList{
-				PROFILE:        CmdUrl{},
-				ROA:            CmdUrl{Url: "/registered-office-address"},
-				OFFICERS_LIST:  CmdUrl{Url: "/officers"},
-				FILING_HISTORY: CmdUrl{Url: "/filing-history"},
-				INSOLVENCY:     CmdUrl{Url: "/insolvency"},
-				CHARGES:        CmdUrl{Url: "/charges/"},
-				CHARGES_ID:     CmdUrl{Url: "/charges/{{.ChargeId}}", Args: []string{"ChargeId"}},
-				UK_ESTABLISHED: CmdUrl{Url: "/uk-establishments"},
+				PROFILE:        "",
+				ROA:            "/registered-office-address",
+				OFFICERS_LIST:  "/officers",
+				FILING_HISTORY: "/filing-history",
+				INSOLVENCY:     "/insolvency",
+				CHARGES:        "/charges/",
+				CHARGES_ID:     "/charges/{{.ChargeId}}",
+				UK_ESTABLISHED: "/uk-establishments",
 			}},
 		PSC: UrlCategory{
 			Category: "/company/{{.CompanyNum}}/persons-with-significant-control",
 			List: CmdUrlList{
-				LIST:          CmdUrl{},
-				STATEMENTS:    CmdUrl{Url: "-statements"},
-				CORPORATE:     CmdUrl{Url: "/corporate-entity/{{.PscId}}", Args: []string{"PscId"}},
-				INDIVIDUAL:    CmdUrl{Url: "/individual/{{.PscId}}", Args: []string{"PscId"}},
-				LEGAL:         CmdUrl{Url: "/legal-person/{{.PscId}}", Args: []string{"PscId"}},
-				STATEMENTS_ID: CmdUrl{Url: "-statements/{{.StatementId}}", Args: []string{"StatementId"}},
-				SUPER_SECURE:  CmdUrl{Url: "/super-secure/{{.SuperSecureId}}", Args: []string{"SuperSecureId"}},
+				LIST:          "",
+				STATEMENTS:    "-statements",
+				CORPORATE:     "/corporate-entity/{{.PscId}}",
+				INDIVIDUAL:    "/individual/{{.PscId}}",
+				LEGAL:         "/legal-person/{{.PscId}}",
+				STATEMENTS_ID: "-statements/{{.StatementId}}",
+				SUPER_SECURE:  "/super-secure/{{.SuperSecureId}}",
 			}},
 		REGISTERS: UrlCategory{
 			Category: "/company/{{.CompanyNum}}/registers"},
@@ -122,14 +117,6 @@ var ApiUrls = ApiFactory{
 	},
 }
 
-/*
-type Client struct {
-	BaseURL   *url.URL
-	UserAgent string
-
-	httpClient *http.Client
-}
-*/
 type JsonCmd struct {
 	CmdName string   `json:"CmdName"`
 	Args    []string `json:"Args"`
@@ -141,7 +128,20 @@ type JsonElem struct {
 }
 
 //__________________________________________________
-func ExportUrls() (s string) {
+// extract all Templates vars (eg. {{.xx}} ...{{.yy}} --> ["xx", ... "yy" ]
+func extractArgs(s string) []string {
+
+	arr := make([]string, 0, 5) // start with a capacity 5, (before allocating memory when running out).
+	r, _ := regexp.Compile("{{\\.([^}]+)}}")
+	mapArray := r.FindAllStringSubmatch(s, -1)
+	for _, v := range mapArray {
+		arr = append(arr, v[1])
+	}
+	return arr
+}
+
+//__________________________________________________
+func ExportUrls() string {
 	fmt.Printf("--ENTERED-----------[%v]\n", ApiUrls)
 	jsonStruct := make([]JsonElem, len(ApiUrls.Urls))
 
@@ -154,9 +154,10 @@ func ExportUrls() (s string) {
 		Cmds := make([]JsonCmd, len(Val.List))
 		j := 0
 		for c, v := range Val.List {
-			fmt.Printf("--SERIAL----------------------------[%s][%v]\n", c, v)
 			Cmds[j].CmdName = c
-			Cmds[j].Args = v.Args
+			//Cmds[j].Args = v.Args
+			Cmds[j].Args = extractArgs(Val.Category + v)
+			fmt.Printf("--SERIAL----------------------------[%s][%s][%v]\n", c, v, Cmds[j].Args)
 			j++
 		}
 		jsonStruct[i].CmdValues = Cmds
@@ -166,10 +167,9 @@ func ExportUrls() (s string) {
 	output, err := json.MarshalIndent(&jsonStruct, "", "\t\t")
 	if err != nil {
 		log.Printf("Error[%v] marshalling to JSON", err)
-		return
+		return ""
 	}
-	s = string(output)
-	return
+	return string(output)
 }
 
 //__________________________________________________
@@ -185,7 +185,7 @@ func GetApiUrl(UrlVars *UrlVariables, ApiVars *pkgApi.ApiVars) error {
 	// build the url
 	url := c.Category
 	if val, ok := c.List[UrlVars.CmdValue]; ok {
-		url += val.Url
+		url += val
 	}
 	t, err := urlTemplate.Parse(url)
 	if err != nil {
