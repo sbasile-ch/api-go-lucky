@@ -30,7 +30,7 @@
                      <form action="/GetCompanyCmd" method="post">
 
                      {{with .UrlVars}}
-                         <label for="CompanyNum"><i class="fas fa-building"></i> Company Number:</label>
+                         <label for="CompanyNum" class="form-label"><i class="fas fa-building"></i> Company Num:</label>
                          <input type="text"  id="CompanyNum" name="CompanyNum" value="{{.CompanyNum}}">
                          <br>
                          <br>
@@ -46,7 +46,7 @@
                              <input type="hidden"  id="SuperSecureId" value={{.SuperSecureId}}>
                          </div>
                      {{end}}
-                         <input type="submit" value="GET">
+                         <input type="submit" class="form-button" value="GET">
                       </form>
 
                       <hr>

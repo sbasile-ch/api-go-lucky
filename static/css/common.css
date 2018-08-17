@@ -64,6 +64,7 @@ footer {
 .col-menu {
    border-right: 1px solid #33B5E5;
    width: 25%;
+   padding: 25px 20px 25 25px;
 }
 .col-out {
    border-right: 1px solid #33B5E5;
@@ -139,6 +140,11 @@ footer {
   font-size: 17px;
 }
 .form-label {
+  display: inline-block;
+  width: 150px;
+  text-align: right;
+}
+.form-button {
 }
 
 /*__________________ OUTPUT AREA __________________*/

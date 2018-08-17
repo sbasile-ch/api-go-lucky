@@ -66,8 +66,10 @@ function populateForm(array) {
             var v = array[i];
             if (v != "CompanyNum" ) {  // CompanyNum is common so strip here
                 var val = $('#'+v).val();
+                html += '<div class="block">';
                 html += '<label for="' + v + '" class="form-label">' + v + ':</label>';
                 html += '<input type="text" id="' + v + '" name="' + v + '" value="' + val +'">';
+                html += '</div>';
             }
         }
     }
