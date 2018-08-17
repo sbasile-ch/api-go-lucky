@@ -1,3 +1,5 @@
+
+//__________________________________________________
 function populateSelects () {
     $('#select-category').html(buildSelectHtml(1)).change(function() {
         var Category = this.value;
@@ -11,20 +13,27 @@ function populateSelects () {
             $('#select-cmd').hide();
         }
     });
+    var selCat = $('#select-category');
+    var selCmd = $('#select-cmd');
+    selCat.val(selCat.attr('value')).change();
+    selCmd.val(selCmd.attr('value')).change();
 }
 
-function sortOptions (array){
+//__________________________________________________
+function addOptions (array, valSelected){
     var i, len, v, html = ''
     array.sort();
     for ( i = 0, len = array.length; i < len; i++ ) {
         v = array[i];
-        html += '<option value="' + v + '">' + v + '</option>';
+        var sel = ( v == valSelected ) ? 'selected' : '';
+        html += '<option ' + sel + ' value="' + v + '">' + v + '</option>';
     }
     return html
 }
 
 
 
+//__________________________________________________
 function buildSelectHtml (numselect, Category, Cmd){
     var i, len, v, html = ''
     var options = [];
@@ -42,27 +51,32 @@ function buildSelectHtml (numselect, Category, Cmd){
                     return  JsonArray[i].CmdValues[c].Args;
                 }
             }
-            return sortOptions (options);
+            return addOptions (options, Cmd);
         }
     }
-    return sortOptions (options);;
+    return addOptions (options, Category);
 }
 
 
+//__________________________________________________
 function populateForm(array) {
     var html='';
     if (array) {
         for ( var i = 0, l = array.length; i < l; i++ ) {
             var v = array[i];
             if (v != "CompanyNum" ) {  // CompanyNum is common so strip here
-            html += '<input type="text" id="' + v + '" name="' + v + '"><label for="' + v + '">' + v + '</label>';
+                var val = $('#'+v).val();
+                html += '<label for="' + v + '" class="form-label">' + v + ':</label>';
+                html += '<input type="text" id="' + v + '" name="' + v + '" value="' + val +'">';
             }
         }
     }
+    $('#hidden-args').remove();
     $('#variable-args').html(html);
 }
 
 
+//__________________________________________________
 function loadCmdList() {
     window.JsonArray = [];
     var txt = $('#json-cmds-list').text();
@@ -71,6 +85,7 @@ function loadCmdList() {
     }
 }
 
+//__________________________________________________
 function formatJson() {
     //var json = JSON.parse($('#output-area').text().replace(/(\r\n\t|\n|\r\t)/gm,''));
     var txt = $('#output-area').text().replace(/(\r\n\t|\n|\r\t)/gm,'');
@@ -81,6 +96,7 @@ function formatJson() {
     }
 }
 
+//__________________________________________________
 function initApp() {
     loadCmdList();
     populateSelects();

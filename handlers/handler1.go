@@ -13,9 +13,9 @@ type MainTemplateVars struct {
 	JsonResponse string
 	JsonCmdsList string
 	ApiUrl       string
-	CmdCategory  string
-	CmdValue     string
-	UrlVars      pkgUrl.UrlVariables
+	//CmdCategory  string
+	//CmdValue     string
+	UrlVars pkgUrl.UrlVariables
 }
 
 //__________________________________________________
@@ -25,13 +25,9 @@ func GetCompanyCmd(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error[%v] on HTML Template Parse", err)
 	} else {
 
-		CmdCategory := r.FormValue("CmdCategory")
-		CmdValue := r.FormValue("CmdValue")
 		UrlVars := pkgUrl.UrlVariables{
-			//CmdCategory:   r.FormValue("CmdCategory"),
-			//CmdValue:      r.FormValue("CmdValue"),
-			CmdCategory:   CmdCategory,
-			CmdValue:      CmdValue,
+			CmdCategory:   r.FormValue("CmdCategory"),
+			CmdValue:      r.FormValue("CmdValue"),
 			CompanyNum:    r.FormValue("CompanyNum"),
 			OfficerId:     r.FormValue("OfficerId"),
 			ChargeId:      r.FormValue("ChargeId"),
@@ -41,7 +37,7 @@ func GetCompanyCmd(w http.ResponseWriter, r *http.Request) {
 		}
 		templVars := MainTemplateVars{JsonCmdsList: pkgUrl.JSONEXPORT, UrlVars: UrlVars}
 
-		fmt.Printf("-----QUI-------[%s][%s][%+v]\n", UrlVars.CmdCategory, UrlVars.CmdValue, UrlVars)
+		fmt.Printf("------------[%s][%s][%+v]\n", UrlVars.CmdCategory, UrlVars.CmdValue, UrlVars)
 		ApiVars := pkgApi.ApiVars{}
 		err = pkgUrl.GetApiUrl(&UrlVars, &ApiVars)
 		templVars.ApiUrl = ApiVars.Host + ApiVars.Url
@@ -60,7 +56,12 @@ func GetCompanyCmd(w http.ResponseWriter, r *http.Request) {
 
 //__________________________________________________
 func StartPage(w http.ResponseWriter, r *http.Request) {
-	templVars := MainTemplateVars{UrlVars: pkgUrl.UrlVariables{CompanyNum: "00006400"}, JsonCmdsList: pkgUrl.JSONEXPORT}
+	templVars := MainTemplateVars{
+		UrlVars: pkgUrl.UrlVariables{
+			CompanyNum:  "00006400",
+			CmdCategory: pkgUrl.COMPANY,
+			CmdValue:    pkgUrl.PROFILE,
+		}, JsonCmdsList: pkgUrl.JSONEXPORT}
 
 	t, err := template.ParseFiles("templates/index.html")
 
